@@ -1,0 +1,20 @@
+topic: /events_stearmdeck
+keys:
+  - label: Play
+    message: e_move_robot_automatically
+    icon: icons/play_key.png
+  - label: Back
+    message: e_gui_back
+    icon: icons/backward_key.png
+  - label: Stop
+    message: e_stop_robot_motion
+    icon: icons/stop_key.png
+  - label: Ready
+    message: e_gui_ready
+    icon: icons/read_state.png
+  - label: Forward
+    message: e_gui_forward
+    icon: icons/forward_key.png
+  - label: Enter
+    message: e_gui_enter
+    icon: icons/enter_key.png

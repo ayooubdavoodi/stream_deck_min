@@ -1,0 +1,22 @@
+[project]
+name = "streamdeck_keyboard"
+version = "0.1.0"
+description = "ROS2-enabled Elgato Stream Deck Mini controller for robot GUI events."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow",
+    "pyusb",
+    "PyYAML",
+]
+
+[project.scripts]
+streamdeck-control = "streamdeck_control:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["streamdeck_control"]
