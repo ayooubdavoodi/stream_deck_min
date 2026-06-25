@@ -13,11 +13,22 @@ except ImportError:
 
 import yaml
 
+"""Stream Deck controller for ROS2-enabled robot GUI interaction.
+
+This module loads a YAML configuration, renders Stream Deck key images,
+handles button presses, and publishes configured string messages to a
+ROS2 topic when available. If ROS2 is unavailable, commands are printed
+locally for debugging.
+"""
+
+# Path to this module file.
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+# Root of the repository, one level above src/.
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, os.pardir))
+# Configuration file path relative to the repository root.
 CONFIG_PATH = os.path.join(PROJECT_ROOT, "config.yaml")
 
-# Try to import ROS2 (rclpy).
+# ROS2 runtime state and publisher objects.
 ros_enabled = False
 rclpy = None
 ros_node = None
@@ -31,7 +42,7 @@ try:
 except Exception:
     ros_enabled = False
 
-# Default configuration values.
+# Default configuration values used when config.yaml is missing or incomplete.
 CONFIG = {
     'topic': '/events_stearmdeck',
     'keys': [
@@ -43,10 +54,12 @@ CONFIG = {
         {'label': 'Enter', 'message': 'e_gui_enter', 'icon': 'icons/enter_key.png'},
     ]
 }
+# Runtime button configuration loaded from YAML.
 BUTTON_CONFIG = []
+# Labels extracted for each configured key.
 BUTTON_LABELS = []
 
-# Button appearance settings.
+# Button image styling settings.
 FONT_SIZE = 14
 TEXT_COLOR = (255, 255, 255)
 BACKGROUND_COLOR = (20, 20, 20)
@@ -69,12 +82,14 @@ def load_configuration():
 
 
 def get_button_config(key_index):
+    """Return the configuration for a specific Stream Deck key index."""
     if key_index < len(BUTTON_CONFIG):
         return BUTTON_CONFIG[key_index]
     return {'label': f"Key {key_index}", 'message': None, 'icon': None}
 
 
 def resolve_icon_path(icon_file):
+    """Resolve an icon path relative to the project or module directories."""
     if not icon_file:
         return None
 
@@ -157,6 +172,7 @@ def perform_robot_command(message):
 
 
 def handle_key_action(key_index, state):
+    """Process a key event and perform the configured command on press."""
     button_cfg = get_button_config(key_index)
     label = button_cfg.get('label', f"Key {key_index}")
     message = button_cfg.get('message')
@@ -168,12 +184,14 @@ def handle_key_action(key_index, state):
 
 
 def key_change_callback(deck, key, state):
+    """Callback invoked by the Stream Deck SDK when a key is pressed or released."""
     handle_key_action(key, state)
     image = create_button_image(deck, key, pressed=state)
     deck.set_key_image(key, PILHelper.to_native_format(deck, image))
 
 
 def setup_deck(deck):
+    """Initialize the Stream Deck and populate all key images."""
     deck.reset()
     deck.set_key_callback(key_change_callback)
 
@@ -185,6 +203,7 @@ def setup_deck(deck):
 
 
 def initialize_ros():
+    """Initialize ROS2 support and create a publisher for the configured topic."""
     global ros_node, ros_publisher, ros_enabled
     if not ros_enabled:
         return
@@ -209,6 +228,7 @@ def initialize_ros():
 
 
 def cleanup_ros():
+    """Shutdown the ROS2 node cleanly if it was initialized."""
     if ros_enabled and ros_node is not None:
         try:
             ros_node.destroy_node()
@@ -218,6 +238,7 @@ def cleanup_ros():
 
 
 def main():
+    """Start the Stream Deck controller and enter the main event loop."""
     load_configuration()
     initialize_ros()
 
